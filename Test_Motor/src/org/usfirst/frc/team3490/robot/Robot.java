@@ -8,11 +8,13 @@
 package org.usfirst.frc.team3490.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -91,6 +93,14 @@ public class Robot extends IterativeRobot {
 		boolean lBumper = driverStick.getRawButton(5);
 		boolean rBumper = driverStick.getRawButton(6);
 		
+		boolean lFired = false;
+		boolean rFired = false;
+		
+		double secondsToRun = .01;
+		double initTime;
+		int dummy = 0;
+		int dummy2 = 0;
+		
 		
 		/*drive control*/
 		leftFrontDrive.set(leftStickValue);
@@ -112,20 +122,53 @@ public class Robot extends IterativeRobot {
 		}
 		
 		/*shooting control*/
+		if(!lBumper && !rBumper) {
+			lFired = false;
+			rFired = false;
+		}
 		if(lBumper && rBumper) {
-			
-			if(yButton) {
+			SmartDashboard.putNumber("dummy2", dummy2);
+			dummy2++;
+			if(yButton && !lFired) {
+				initTime = Timer.getFPGATimestamp();
+				
 				leftCannon.set(Relay.Value.kOn);
+				while(Timer.getFPGATimestamp() - initTime <= secondsToRun){
+					dummy++;
+				}
+				leftCannon.set(Relay.Value.kOff);
+				lFired = true;
 			} else {
 				leftCannon.set(Relay.Value.kOff);
 			}
-			if(xButton) {
+			if(!lBumper || !rBumper){
+				break;
+			}
+			/*if(xButton && !rFired) {
+				initTime = Timer.getFPGATimestamp();
 				rightCannon.set(Relay.Value.kOn);
+				while(Timer.getFPGATimestamp() - initTime <= secondsToRun){
+					dummy++;
+				}
+				rightCannon.set(Relay.Value.kOff);
+				rFired = true;
 			} else {
 				rightCannon.set(Relay.Value.kOff);
-			}
+			}*/
+			
+			
+			/*while(xButton || yButton) {
+				dummy2++;
+				System.out.print(dummy2 + "  ");
+				SmartDashboard.putNumber("dummy2", dummy2);
+				if(!xButton && !yButton){
+					break;
+				}
+			}*/
+			
 		}
 	}
+	
 
 	/**
 	 * This function is called periodically during test mode.
